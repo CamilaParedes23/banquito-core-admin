@@ -24,11 +24,11 @@ jobs:
 
       - name: Build image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/banquito-core-contable:latest -f docker/Dockerfile .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/banquito-core-admin:latest -f docker/Dockerfile .
 
       - name: Push image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/banquito-core-contable:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/banquito-core-admin:latest
 
       - name: Trigger Infra Deploy
         run: |
@@ -39,6 +39,6 @@ jobs:
             -d '{
               "event_type": "deploy-core-back",
               "client_payload": {
-                "service": "banquito-core-contable"
+                "service": "banquito-core-admin"
               }
             }'
