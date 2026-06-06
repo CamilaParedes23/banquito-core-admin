@@ -1,0 +1,1 @@
+-- Demo data for admin-service is intentionally minimal. Add V4+ migrations for lab datasets when required.

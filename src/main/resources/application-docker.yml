@@ -5,7 +5,7 @@ spring:
   application:
     name: ${SPRING_APPLICATION_NAME:core-admin-service}
   datasource:
-    url: ${ADMIN_DB_URL:jdbc:mysql://localhost:33062/banquito_core_admin_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Guayaquil}
+    url: ${ADMIN_DB_URL:jdbc:mysql://mysql-admin:3306/banquito_core_admin_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Guayaquil}
     username: ${ADMIN_DB_USER:root}
     password: ${ADMIN_DB_PASSWORD:BanQuitoRoot2026!}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -18,7 +18,7 @@ spring:
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
     properties:
       hibernate:
-        format_sql: ${HIBERNATE_FORMAT_SQL:true}
+        format_sql: ${HIBERNATE_FORMAT_SQL:false}
         jdbc:
           time_zone: ${APP_TIME_ZONE:America/Guayaquil}
   flyway:
@@ -34,7 +34,7 @@ management:
         include: health,info
   endpoint:
     health:
-      show-details: ${MANAGEMENT_HEALTH_DETAILS:always}
+      show-details: ${MANAGEMENT_HEALTH_DETAILS:when_authorized}
 
 springdoc:
   api-docs:
