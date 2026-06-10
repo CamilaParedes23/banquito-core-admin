@@ -1,17 +1,59 @@
 package com.banquito.core.admin.application.service;
 
-import com.banquito.core.admin.api.dto.api.*;
-import com.banquito.core.admin.domain.enums.*;
-import com.banquito.core.admin.domain.model.*;
-import com.banquito.core.admin.domain.repository.*;
-import com.banquito.core.admin.shared.exception.BusinessException;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.util.List;
+import com.banquito.core.admin.api.dto.api.AccountSubtypeRequest;
+import com.banquito.core.admin.api.dto.api.AccountSubtypeResponse;
+import com.banquito.core.admin.api.dto.api.BranchRequest;
+import com.banquito.core.admin.api.dto.api.BranchResponse;
+import com.banquito.core.admin.api.dto.api.BusinessDayResponse;
+import com.banquito.core.admin.api.dto.api.ChangeStatusRequest;
+import com.banquito.core.admin.api.dto.api.FinancialInstitutionRequest;
+import com.banquito.core.admin.api.dto.api.FinancialInstitutionResponse;
+import com.banquito.core.admin.api.dto.api.HolidayRequest;
+import com.banquito.core.admin.api.dto.api.HolidayResponse;
+import com.banquito.core.admin.api.dto.api.OperationalWindowRequest;
+import com.banquito.core.admin.api.dto.api.OperationalWindowResponse;
+import com.banquito.core.admin.api.dto.api.ParameterRequest;
+import com.banquito.core.admin.api.dto.api.ParameterResponse;
+import com.banquito.core.admin.api.dto.api.TransactionSubtypeRequest;
+import com.banquito.core.admin.api.dto.api.TransactionSubtypeResponse;
+import com.banquito.core.admin.api.dto.api.UserCoreRequest;
+import com.banquito.core.admin.api.dto.api.UserCoreResponse;
+import com.banquito.core.admin.domain.enums.AccionDespuesCorteEnum;
+import com.banquito.core.admin.domain.enums.DominioOperativoEnum;
+import com.banquito.core.admin.domain.enums.EstadoInstitucionFinancieraEnum;
+import com.banquito.core.admin.domain.enums.EstadoRegistroEnum;
+import com.banquito.core.admin.domain.enums.EstadoSucursalEnum;
+import com.banquito.core.admin.domain.enums.EstadoUsuarioCoreEnum;
+import com.banquito.core.admin.domain.enums.EstadoVentanaOperativaEnum;
+import com.banquito.core.admin.domain.enums.ResultadoAuditoriaAdminEnum;
+import com.banquito.core.admin.domain.enums.TipoBaseCuentaEnum;
+import com.banquito.core.admin.domain.enums.TipoDatoParametroEnum;
+import com.banquito.core.admin.domain.enums.TipoMovimientoBaseEnum;
+import com.banquito.core.admin.domain.model.Feriado;
+import com.banquito.core.admin.domain.model.InstitucionFinanciera;
+import com.banquito.core.admin.domain.model.ParametroCore;
+import com.banquito.core.admin.domain.model.SubtipoCuenta;
+import com.banquito.core.admin.domain.model.SubtipoTransaccion;
+import com.banquito.core.admin.domain.model.Sucursal;
+import com.banquito.core.admin.domain.model.UsuarioCore;
+import com.banquito.core.admin.domain.model.VentanaOperativa;
+import com.banquito.core.admin.domain.repository.FeriadoRepository;
+import com.banquito.core.admin.domain.repository.InstitucionFinancieraRepository;
+import com.banquito.core.admin.domain.repository.ParametroCoreRepository;
+import com.banquito.core.admin.domain.repository.SubtipoCuentaRepository;
+import com.banquito.core.admin.domain.repository.SubtipoTransaccionRepository;
+import com.banquito.core.admin.domain.repository.SucursalRepository;
+import com.banquito.core.admin.domain.repository.UsuarioCoreRepository;
+import com.banquito.core.admin.domain.repository.VentanaOperativaRepository;
+import com.banquito.core.admin.shared.exception.BusinessException;
 
 @Service
 public class AdminService {
@@ -231,10 +273,44 @@ public class AdminService {
 
     @Transactional
     public UserCoreResponse crearUsuarioCore(UserCoreRequest request, String actorUuid) {
-        if (usuarioCoreRepository.existsByUuidIdentidad(request.identityUuid())) throw new BusinessException("ADMIN_CORE_USER_DUPLICATED", "Ya existe un perfil operativo para esa identidad", HttpStatus.CONFLICT);
-        if (request.branchCode() != null && !request.branchCode().isBlank()) findSucursal(request.branchCode());
-        UsuarioCore usuario = usuarioCoreRepository.save(UsuarioCore.crear(request.identityUuid(), request.branchCode(), request.fullName(), request.position()));
-        auditoriaService.registrar(actorUuid, "CREATE_CORE_USER", "USUARIO_CORE", usuario.getUuidUsuarioCore(), ResultadoAuditoriaAdminEnum.OK, null);
+        if (request.identityUuid() == null || request.identityUuid().isBlank()) {
+            throw new BusinessException(
+                    "ADMIN_CORE_USER_IDENTITY_REQUIRED",
+                    "El UUID de identidad es obligatorio",
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
+        if (usuarioCoreRepository.existsByUuidIdentidad(request.identityUuid())) {
+            throw new BusinessException(
+                    "ADMIN_CORE_USER_DUPLICATED",
+                    "Ya existe un perfil operativo para esa identidad",
+                    HttpStatus.CONFLICT
+            );
+        }
+
+        if (request.branchCode() != null && !request.branchCode().isBlank()) {
+            findSucursal(request.branchCode());
+        }
+
+        UsuarioCore usuario = usuarioCoreRepository.save(
+                UsuarioCore.crear(
+                        request.identityUuid(),
+                        request.branchCode(),
+                        request.fullName(),
+                        request.position()
+                )
+        );
+
+        auditoriaService.registrar(
+                actorUuid,
+                "CREATE_CORE_USER",
+                "USUARIO_CORE",
+                usuario.getUuidUsuarioCore(),
+                ResultadoAuditoriaAdminEnum.OK,
+                null
+        );
+
         return mapper.toUserCoreResponse(usuario);
     }
     @Transactional(readOnly = true) public UserCoreResponse obtenerUsuarioCore(String uuid) { return mapper.toUserCoreResponse(usuarioCoreRepository.findByUuidUsuarioCore(uuid).orElseThrow(() -> notFound("ADMIN_CORE_USER_NOT_FOUND", "Usuario operativo no encontrado"))); }

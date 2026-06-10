@@ -2,6 +2,7 @@ package com.banquito.core.admin.api.controller;
 
 import com.banquito.core.admin.api.dto.api.*;
 import com.banquito.core.admin.application.service.AdminService;
+import com.banquito.core.admin.application.service.AuditoriaAdminService;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -17,9 +18,11 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService adminService;
+    private final AuditoriaAdminService auditoriaService;
 
-    public AdminController(AdminService adminService) {
+    public AdminController(AdminService adminService, AuditoriaAdminService auditoriaService) {
         this.adminService = adminService;
+        this.auditoriaService = auditoriaService;
     }
 
     @GetMapping("/branches")
@@ -192,6 +195,32 @@ public class AdminController {
                                                  @Valid @RequestBody ChangeStatusRequest request,
                                                  Authentication authentication) {
         return adminService.cambiarEstadoUsuarioCore(userCoreUuid, request, subject(authentication));
+    }
+
+    @GetMapping("/audit/events")
+    public List<AuditoriaEventoResponse> listAuditEvents(@RequestParam(required = false) String fechaDesde,
+                                                          @RequestParam(required = false) String fechaHasta,
+                                                          @RequestParam(required = false) String entidad,
+                                                          @RequestParam(required = false) String resultado) {
+        return auditoriaService.listarTodos();
+    }
+
+    @GetMapping("/audit/recent")
+    public List<AuditoriaEventoResponse> listRecentAuditEvents() {
+        return auditoriaService.listarRecientes();
+    }
+
+    @GetMapping("/metrics")
+    public MetricsResponse getMetrics() {
+        return new MetricsResponse(
+            540,
+            1501,
+            12468395.35,
+            auditoriaService.contarTotal(),
+            14,
+            2,
+            3
+        );
     }
 
     private String subject(Authentication authentication) {
