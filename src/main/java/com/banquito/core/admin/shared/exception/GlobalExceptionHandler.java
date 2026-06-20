@@ -6,6 +6,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -102,6 +103,17 @@ public class GlobalExceptionHandler {
                 "El método HTTP utilizado no está permitido para este recurso.",
                 List.of(exception.getMethod())
         );
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(
+                LocalDateTime.now(),
+                CorrelationIdHolder.get(),
+                "SECURITY_ACCESS_DENIED",
+                "Acceso denegado. El token no posee permisos para este recurso.",
+                List.of()
+        ));
     }
 
     @ExceptionHandler(Exception.class)

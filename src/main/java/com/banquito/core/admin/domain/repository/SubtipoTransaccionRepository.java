@@ -14,5 +14,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
     boolean existsByCodigo(String codigo);
     List<SubtipoTransaccion> findByEstadoOrderByNombreAsc(EstadoRegistroEnum estado);
     List<SubtipoTransaccion> findByTipoMovimientoBaseAndEstadoOrderByNombreAsc(TipoMovimientoBaseEnum tipoMovimientoBase, EstadoRegistroEnum estado);
+    long countByEstado(EstadoRegistroEnum estado);
 
     }

@@ -127,6 +127,11 @@ public class AdminCatalogGrpcService extends AdminCatalogServiceGrpc.AdminCatalo
                     .setBaseType(nvl(r.baseType()))
                     .setName(nvl(r.name()))
                     .setStatus(nvl(r.status()))
+                    .addAllAllowedCustomerTypes(r.allowedCustomerTypes())
+                    .addAllAllowedPurposes(r.allowedPurposes())
+                    .setSupportsMassPayments(Boolean.TRUE.equals(r.supportsMassPayments()))
+                    .setSupportsFavoritePaymentAccount(Boolean.TRUE.equals(r.supportsFavoritePaymentAccount()))
+                    .setMinimumOpeningBalance(r.minimumOpeningBalance() == null ? "0.00" : r.minimumOpeningBalance().toPlainString())
                     .build());
             observer.onCompleted();
         } catch (RuntimeException ex) {

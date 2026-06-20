@@ -10,5 +10,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
     public interface ParametroCoreRepository extends JpaRepository<ParametroCore, String> {
 
     List<ParametroCore> findByEstadoOrderByCodigoAsc(EstadoRegistroEnum estado);
+    long countByEstado(EstadoRegistroEnum estado);
 
     }

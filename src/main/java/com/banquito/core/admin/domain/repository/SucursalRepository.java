@@ -12,5 +12,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
     Optional<Sucursal> findByCodigoSucursal(String codigoSucursal);
     boolean existsByCodigoSucursal(String codigoSucursal);
     List<Sucursal> findByEstadoOrderByNombreAsc(EstadoSucursalEnum estado);
+    long countByEstado(EstadoSucursalEnum estado);
 
     }

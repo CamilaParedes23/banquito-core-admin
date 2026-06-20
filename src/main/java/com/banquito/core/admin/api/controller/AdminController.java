@@ -1,8 +1,8 @@
 package com.banquito.core.admin.api.controller;
 
 import com.banquito.core.admin.api.dto.api.*;
+import com.banquito.core.admin.api.dto.internal.AuthenticatedActor;
 import com.banquito.core.admin.application.service.AdminService;
-import com.banquito.core.admin.application.service.AuditoriaAdminService;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -18,11 +18,9 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService adminService;
-    private final AuditoriaAdminService auditoriaService;
 
-    public AdminController(AdminService adminService, AuditoriaAdminService auditoriaService) {
+    public AdminController(AdminService adminService) {
         this.adminService = adminService;
-        this.auditoriaService = auditoriaService;
     }
 
     @GetMapping("/branches")
@@ -58,6 +56,14 @@ public class AdminController {
     @PostMapping("/holidays")
     public ResponseEntity<HolidayResponse> createHoliday(@Valid @RequestBody HolidayRequest request, Authentication authentication) {
         return ResponseEntity.status(HttpStatus.CREATED).body(adminService.crearFeriado(request, subject(authentication)));
+    }
+
+    @PatchMapping("/holidays/{holidayDate}")
+    public HolidayResponse updateHoliday(
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate holidayDate,
+            @Valid @RequestBody UpdateHolidayRequest request,
+            Authentication authentication) {
+        return adminService.actualizarFeriado(holidayDate, request, subject(authentication));
     }
 
     @PatchMapping("/holidays/{holidayDate}/status")
@@ -140,8 +146,9 @@ public class AdminController {
 
     @GetMapping("/account-subtypes")
     public List<AccountSubtypeResponse> listAccountSubtypes(@RequestParam(required = false) String baseType,
-                                                            @RequestParam(required = false) String status) {
-        return adminService.listarSubtiposCuenta(baseType, status);
+                                                            @RequestParam(required = false) String status,
+                                                            @RequestParam(required = false) String customerType) {
+        return adminService.listarSubtiposCuenta(baseType, status, customerType);
     }
 
     @GetMapping("/account-subtypes/{code}")
@@ -180,6 +187,22 @@ public class AdminController {
         return adminService.actualizarSubtipoTransaccion(code, request, subject(authentication));
     }
 
+
+
+    @GetMapping("/metrics")
+    public MetricsResponse getMetrics() {
+        return adminService.obtenerMetricasAdministrativas();
+    }
+
+    @GetMapping("/users")
+    public CoreUserListResponse listCoreUsers(@RequestParam(required = false) String branchCode,
+                                              @RequestParam(required = false) String status,
+                                              @RequestParam(required = false) String search,
+                                              @RequestParam(required = false) Integer page,
+                                              @RequestParam(required = false) Integer size) {
+        return adminService.listarUsuariosCore(branchCode, status, search, page, size);
+    }
+
     @PostMapping("/users")
     public ResponseEntity<UserCoreResponse> createCoreUser(@Valid @RequestBody UserCoreRequest request, Authentication authentication) {
         return ResponseEntity.status(HttpStatus.CREATED).body(adminService.crearUsuarioCore(request, subject(authentication)));
@@ -197,33 +220,11 @@ public class AdminController {
         return adminService.cambiarEstadoUsuarioCore(userCoreUuid, request, subject(authentication));
     }
 
-    @GetMapping("/audit/events")
-    public List<AuditoriaEventoResponse> listAuditEvents(@RequestParam(required = false) String fechaDesde,
-                                                          @RequestParam(required = false) String fechaHasta,
-                                                          @RequestParam(required = false) String entidad,
-                                                          @RequestParam(required = false) String resultado) {
-        return auditoriaService.listarTodos();
-    }
-
-    @GetMapping("/audit/recent")
-    public List<AuditoriaEventoResponse> listRecentAuditEvents() {
-        return auditoriaService.listarRecientes();
-    }
-
-    @GetMapping("/metrics")
-    public MetricsResponse getMetrics() {
-        return new MetricsResponse(
-            540,
-            1501,
-            12468395.35,
-            auditoriaService.contarTotal(),
-            14,
-            2,
-            3
-        );
-    }
-
     private String subject(Authentication authentication) {
-        return authentication == null ? null : String.valueOf(authentication.getPrincipal());
+        if (authentication == null) return null;
+        if (authentication.getPrincipal() instanceof AuthenticatedActor actor) {
+            return actor.subject();
+        }
+        return authentication.getName();
     }
 }

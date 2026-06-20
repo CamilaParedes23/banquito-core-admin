@@ -14,4 +14,8 @@ public class OutboxEventService {
     public void registrar(String tipoEvento, String agregadoTipo, String agregadoId, String payloadJson) {
         repository.save(OutboxEvent.crear(CorrelationIdHolder.get(), tipoEvento, agregadoTipo, agregadoId, payloadJson));
     }
+
+    public long contarPendientes() {
+        return repository.countByEstado(com.banquito.core.admin.domain.enums.EstadoOutboxEventEnum.PENDIENTE);
+    }
 }

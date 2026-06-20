@@ -4,6 +4,9 @@ import com.banquito.core.admin.api.dto.api.*;
 import com.banquito.core.admin.domain.model.*;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Component
 public class AdminMapper {
     public BranchResponse toBranchResponse(Sucursal s) {
@@ -22,7 +25,18 @@ public class AdminMapper {
         return new FinancialInstitutionResponse(i.getRoutingCode(), i.getNombre(), i.getEsBanquito(), i.getEstado().name());
     }
     public AccountSubtypeResponse toAccountSubtypeResponse(SubtipoCuenta s) {
-        return new AccountSubtypeResponse(s.getCodigo(), s.getTipoBase().name(), s.getNombre(), s.getDescripcion(), s.getEstado().name());
+        return new AccountSubtypeResponse(
+                s.getCodigo(),
+                s.getTipoBase().name(),
+                s.getNombre(),
+                s.getDescripcion(),
+                splitCsv(s.getTiposClientePermitidos()),
+                splitCsv(s.getPropositosPermitidos()),
+                s.getSoportaPagosMasivos(),
+                s.getSoportaCuentaFavorita(),
+                s.getSaldoMinimoApertura(),
+                s.getEstado().name()
+        );
     }
     public TransactionSubtypeResponse toTransactionSubtypeResponse(SubtipoTransaccion s) {
         return new TransactionSubtypeResponse(s.getCodigo(), s.getNombre(), s.getTipoMovimientoBase().name(), s.getDescripcion(), s.getEstado().name());
@@ -30,4 +44,12 @@ public class AdminMapper {
     public UserCoreResponse toUserCoreResponse(UsuarioCore u) {
         return new UserCoreResponse(u.getUuidUsuarioCore(), u.getUuidIdentidad(), u.getCodigoSucursal(), u.getNombreCompleto(), u.getCargo(), u.getEstadoOperativo().name());
     }
+    private List<String> splitCsv(String value) {
+        if (value == null || value.isBlank()) return List.of();
+        return Arrays.stream(value.split(","))
+                .map(String::trim)
+                .filter(item -> !item.isBlank())
+                .toList();
+    }
 }
+
