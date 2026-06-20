@@ -12,5 +12,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
     Optional<InstitucionFinanciera> findByRoutingCode(String routingCode);
     boolean existsByRoutingCode(String routingCode);
     List<InstitucionFinanciera> findByEstadoOrderByNombreAsc(EstadoInstitucionFinancieraEnum estado);
+    long countByEstado(EstadoInstitucionFinancieraEnum estado);
 
     }

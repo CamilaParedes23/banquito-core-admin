@@ -11,5 +11,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
     public interface FeriadoRepository extends JpaRepository<Feriado, LocalDate> {
 
     List<Feriado> findByEstadoOrderByFechaFeriadoAsc(EstadoRegistroEnum estado);
+    long countByEstado(EstadoRegistroEnum estado);
 
     }

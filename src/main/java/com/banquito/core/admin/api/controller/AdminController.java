@@ -1,6 +1,7 @@
 package com.banquito.core.admin.api.controller;
 
 import com.banquito.core.admin.api.dto.api.*;
+import com.banquito.core.admin.api.dto.internal.AuthenticatedActor;
 import com.banquito.core.admin.application.service.AdminService;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -55,6 +56,14 @@ public class AdminController {
     @PostMapping("/holidays")
     public ResponseEntity<HolidayResponse> createHoliday(@Valid @RequestBody HolidayRequest request, Authentication authentication) {
         return ResponseEntity.status(HttpStatus.CREATED).body(adminService.crearFeriado(request, subject(authentication)));
+    }
+
+    @PatchMapping("/holidays/{holidayDate}")
+    public HolidayResponse updateHoliday(
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate holidayDate,
+            @Valid @RequestBody UpdateHolidayRequest request,
+            Authentication authentication) {
+        return adminService.actualizarFeriado(holidayDate, request, subject(authentication));
     }
 
     @PatchMapping("/holidays/{holidayDate}/status")
@@ -137,8 +146,9 @@ public class AdminController {
 
     @GetMapping("/account-subtypes")
     public List<AccountSubtypeResponse> listAccountSubtypes(@RequestParam(required = false) String baseType,
-                                                            @RequestParam(required = false) String status) {
-        return adminService.listarSubtiposCuenta(baseType, status);
+                                                            @RequestParam(required = false) String status,
+                                                            @RequestParam(required = false) String customerType) {
+        return adminService.listarSubtiposCuenta(baseType, status, customerType);
     }
 
     @GetMapping("/account-subtypes/{code}")
@@ -177,6 +187,22 @@ public class AdminController {
         return adminService.actualizarSubtipoTransaccion(code, request, subject(authentication));
     }
 
+
+
+    @GetMapping("/metrics")
+    public MetricsResponse getMetrics() {
+        return adminService.obtenerMetricasAdministrativas();
+    }
+
+    @GetMapping("/users")
+    public CoreUserListResponse listCoreUsers(@RequestParam(required = false) String branchCode,
+                                              @RequestParam(required = false) String status,
+                                              @RequestParam(required = false) String search,
+                                              @RequestParam(required = false) Integer page,
+                                              @RequestParam(required = false) Integer size) {
+        return adminService.listarUsuariosCore(branchCode, status, search, page, size);
+    }
+
     @PostMapping("/users")
     public ResponseEntity<UserCoreResponse> createCoreUser(@Valid @RequestBody UserCoreRequest request, Authentication authentication) {
         return ResponseEntity.status(HttpStatus.CREATED).body(adminService.crearUsuarioCore(request, subject(authentication)));
@@ -195,6 +221,10 @@ public class AdminController {
     }
 
     private String subject(Authentication authentication) {
-        return authentication == null ? null : String.valueOf(authentication.getPrincipal());
+        if (authentication == null) return null;
+        if (authentication.getPrincipal() instanceof AuthenticatedActor actor) {
+            return actor.subject();
+        }
+        return authentication.getName();
     }
 }

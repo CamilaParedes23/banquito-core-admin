@@ -49,6 +49,10 @@ public class Feriado {
         feriado.estado = EstadoRegistroEnum.ACTIVO;
         return feriado;
     }
+    public void actualizar(String nombre, Boolean esFinSemana) {
+        this.nombre = nombre;
+        this.esFinSemana = esFinSemana != null && esFinSemana;
+    }
     public void cambiarEstado(EstadoRegistroEnum estado) { this.estado = estado; }
 
     @PrePersist

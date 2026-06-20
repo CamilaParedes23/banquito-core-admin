@@ -5,7 +5,7 @@ spring:
   application:
     name: ${SPRING_APPLICATION_NAME:core-admin-service}
   datasource:
-    url: ${ADMIN_DB_URL:jdbc:mysql://localhost:33062/banquito_core_admin_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Guayaquil}
+    url: ${ADMIN_DB_URL:jdbc:mysql://localhost:33062/core_admin_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Guayaquil}
     username: ${ADMIN_DB_USER:root}
     password: ${ADMIN_DB_PASSWORD:BanQuitoRoot2026!}
     driver-class-name: com.mysql.cj.jdbc.Driver

@@ -14,5 +14,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
     boolean existsByCodigo(String codigo);
     List<VentanaOperativa> findByEstadoOrderByCodigoAsc(EstadoVentanaOperativaEnum estado);
     List<VentanaOperativa> findByDominioOperativoAndEstadoOrderByCodigoAsc(DominioOperativoEnum dominioOperativo, EstadoVentanaOperativaEnum estado);
+    long countByEstado(EstadoVentanaOperativaEnum estado);
 
     }
