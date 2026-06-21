@@ -102,3 +102,7 @@ para validar sucursales, subtipos de cuenta, subtipos de transacción, parámetr
 - Base: `banquito_core_admin_db`.
 - Puerto local actual en infraestructura: `33062`.
 - SQL de referencia: `docs/database/02_core_admin_db.sql`.
+
+## Seguridad y autorización agregada
+
+Las rutas `/api/v1/admin/**` y `/api/v1/audit/**` requieren JWT válido y rol interno (`ADMIN_SEGURIDAD`, `CAJERO` u `OPERADOR_CONTABLE`). Un cliente final autenticado no puede acceder a métricas, catálogos administrativos ni auditoría.

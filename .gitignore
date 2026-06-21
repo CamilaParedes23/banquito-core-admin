@@ -33,3 +33,24 @@ logs/
 /postman/
 /sql/
 docs/
+
+# BEGIN BANQUITO MANAGED EXCLUSIONS
+# Secretos locales
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Compilación
+target/
+
+# IDE/local
+.idea/
+.vscode/
+
+# Documentación local no versionada
+docs/
+
+# Logs
+*.log
+# END BANQUITO MANAGED EXCLUSIONS
